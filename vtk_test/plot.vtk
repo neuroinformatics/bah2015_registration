@@ -1,0 +1,30 @@
+# vtk DataFile Version 1.0
+Unstructured Grid Example
+ASCII
+
+DATASET UNSTRUCTURED_GRID
+POINTS 5 float
+
+0.0 2.0 3.0
+1.0 2.0 3.0
+2.0 2.0 3.0
+3.0 2.0 3.0
+4.0 3.0 3.0
+
+POINT_DATA 5
+SCALARS scalars float
+LOOKUP_TABLE default
+
+5.0
+7.0
+9.0
+9.0
+11.0
+
+VECTORS vectors float
+0 1 0
+1 0 0
+0 1 0
+1 0 0
+0 1 0
+

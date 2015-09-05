@@ -1,22 +1,108 @@
 import vtk
 
 obj_filename = 'mousebrain_small.obj'
+obj2_filename = 'slice.obj'
 png_filename = 'CD21594.1-Prlr.png'
+plot_filename = 'plot.vtk'
 plane_scale = 25
 plane_ratio = 385. / 614.
 
+
+###############################################################################
+# read plot file
+#
+plot = vtk.vtkUnstructuredGridReader()
+plot.SetFileName(plot_filename)
+
+# Put spheres at each point in the dataset
+ball = vtk.vtkSphereSource()
+ball.SetRadius(0.12)
+ball.SetThetaResolution(12)
+ball.SetPhiResolution(12)
+ballGlyph = vtk.vtkGlyph3D()
+ballGlyph.SetSourceConnection(ball.GetOutputPort())
+ballGlyph.SetInputConnection(plot.GetOutputPort())
+# We do not want the Ball to have the size depending on the Scalar
+ballGlyph.SetScaleModeToDataScalingOff()
+ballMapper = vtk.vtkPolyDataMapper()
+ballMapper.SetInputConnection(ballGlyph.GetOutputPort())
+
+# Create a color transfer function to be used for both the balls and arrows.
+colorTransferFunction = vtk.vtkColorTransferFunction()
+colorTransferFunction.AddRGBPoint(5.0 , 0.0, 0.0, 1.0)
+colorTransferFunction.AddRGBPoint(10.0, 0.0, 1.0, 1.0)
+colorTransferFunction.AddRGBPoint(15.0, 0.0, 1.0, 0.0)
+colorTransferFunction.AddRGBPoint(20.0, 1.0, 1.0, 0.0)
+colorTransferFunction.AddRGBPoint(25.0, 1.0, 0.0, 0.0)
+colorTransferFunction.AddRGBPoint(30.0, 1.0, 0.0, 1.0)
+# Set colors depending on the color transfer functions
+ballMapper.SetLookupTable(colorTransferFunction)
+ballActor = vtk.vtkActor()
+ballActor.SetMapper(ballMapper)
+
+#Put an arrow (vector) at each ball
+arrow = vtk.vtkArrowSource()
+arrow.SetTipRadius(0.2)
+arrow.SetShaftRadius(0.075)
+arrowGlyph = vtk.vtkGlyph3D()
+arrowGlyph.SetInputConnection(plot.GetOutputPort())
+arrowGlyph.SetSourceConnection(arrow.GetOutputPort())
+arrowGlyph.SetScaleFactor(0.4)
+# We do not want the Arrow's size to depend on the Scalar
+arrowGlyph.SetScaleModeToDataScalingOff()
+arrowMapper = vtk.vtkPolyDataMapper()
+arrowMapper.SetInputConnection(arrowGlyph.GetOutputPort())
+# Set colors depending on the color transfer functions
+arrowMapper.SetLookupTable(colorTransferFunction)
+arrowActor = vtk.vtkActor()
+arrowActor.SetMapper(arrowMapper)
+
+
+
+###############################################################################
 # read obj file
+#
 object = vtk.vtkOBJReader()
 object.SetFileName(obj_filename)
 objectMapper = vtk.vtkPolyDataMapper()
 objectMapper.SetInputConnection(object.GetOutputPort())
-
 objectActor = vtk.vtkActor()
 objectActor.SetMapper(objectMapper)
 objectActor.GetProperty().SetRepresentationToWireframe();
-objectActor.GetProperty().SetColor(1.0, 0.0, 0.0)
+objectActor.GetProperty().SetColor(1.0, 0.2, 0.2)
 
+
+###############################################################################
+# read second obj file
+#
+object2 = vtk.vtkOBJReader()
+object2.SetFileName(obj2_filename)
+object2Mapper = vtk.vtkPolyDataMapper()
+#object2Mapper.SetInputConnection(object2.GetOutputPort())
+
+# transform plane
+obj_transform = vtk.vtkTransform()
+obj_transform.Translate(5, 23, 13)
+obj_transform.Scale(0.02, 0.02, 0.02)
+obj_transform.RotateWXYZ(90, 0, 0, 1)
+obj_transform.RotateWXYZ(-90, 1, 0, 0)
+obj_transform.RotateWXYZ(180, 0, 1, 0)
+obj_transformFilter = vtk.vtkTransformPolyDataFilter()
+obj_transformFilter.SetTransform(obj_transform)
+obj_transformFilter.SetInputConnection(object2.GetOutputPort())
+obj_transformFilter.Update()
+object2Mapper.SetInputConnection(obj_transformFilter.GetOutputPort())
+
+
+object2Actor = vtk.vtkActor()
+object2Actor.SetMapper(object2Mapper)
+#object2Actor.GetProperty().SetRepresentationToWireframe();
+object2Actor.GetProperty().SetColor(0.3, 1.0, 0.4)
+
+
+###############################################################################
 # draw plane
+#
 plane = vtk.vtkPlaneSource()
 plane.SetCenter(0,0,0)
 plane.SetNormal(1.0, 0.0, 0.0)
@@ -47,17 +133,29 @@ transformFilter.SetInputConnection(plane.GetOutputPort())
 transformFilter.Update()
 planeMapper.SetInputConnection(transformFilter.GetOutputPort())
 
-
 planeActor = vtk.vtkActor()
 planeActor.SetMapper(planeMapper)
 planeActor.SetTexture(texture)
 #planeActor.GetProperty().SetColor(0.5, 0.5, 0.5)
 
 
+###############################################################################
+# draw axis
+#
+axesActor = vtk.vtkAxesActor()
+
+
+###############################################################################
 # prepare rendering
+#
 ren = vtk.vtkRenderer()
+
+ren.AddActor(ballActor)
+ren.AddActor(arrowActor)
 ren.AddActor(objectActor)
+ren.AddActor(object2Actor)
 ren.AddActor(planeActor)
+ren.AddActor(axesActor)
 ren.SetBackground(0.0, 0.0, 0.0)
 
 renWin = vtk.vtkRenderWindow()
