@@ -1,9 +1,10 @@
 import vtk
 
-obj_filename = 'mousebrain_small.obj'
-obj2_filename = 'slice.obj'
+obj_filename = '../obj/mousebrain_small.obj'
+obj2_filename = '../obj/slice.obj'
 png_filename = 'CD21594.1-Prlr.png'
-plot_filename = 'plot.vtk'
+plot_filename = '../analysis_obj/test.vtk'
+#plot_filename = 'mousebrain_small1000.vtk'
 plane_scale = 25
 plane_ratio = 385. / 614.
 
@@ -14,7 +15,6 @@ plane_ratio = 385. / 614.
 plot = vtk.vtkUnstructuredGridReader()
 plot.SetFileName(plot_filename)
 
-# Put spheres at each point in the dataset
 ball = vtk.vtkSphereSource()
 ball.SetRadius(0.12)
 ball.SetThetaResolution(12)
@@ -22,12 +22,10 @@ ball.SetPhiResolution(12)
 ballGlyph = vtk.vtkGlyph3D()
 ballGlyph.SetSourceConnection(ball.GetOutputPort())
 ballGlyph.SetInputConnection(plot.GetOutputPort())
-# We do not want the Ball to have the size depending on the Scalar
 ballGlyph.SetScaleModeToDataScalingOff()
 ballMapper = vtk.vtkPolyDataMapper()
 ballMapper.SetInputConnection(ballGlyph.GetOutputPort())
 
-# Create a color transfer function to be used for both the balls and arrows.
 colorTransferFunction = vtk.vtkColorTransferFunction()
 colorTransferFunction.AddRGBPoint(5.0 , 0.0, 0.0, 1.0)
 colorTransferFunction.AddRGBPoint(10.0, 0.0, 1.0, 1.0)
@@ -35,12 +33,10 @@ colorTransferFunction.AddRGBPoint(15.0, 0.0, 1.0, 0.0)
 colorTransferFunction.AddRGBPoint(20.0, 1.0, 1.0, 0.0)
 colorTransferFunction.AddRGBPoint(25.0, 1.0, 0.0, 0.0)
 colorTransferFunction.AddRGBPoint(30.0, 1.0, 0.0, 1.0)
-# Set colors depending on the color transfer functions
 ballMapper.SetLookupTable(colorTransferFunction)
 ballActor = vtk.vtkActor()
 ballActor.SetMapper(ballMapper)
 
-#Put an arrow (vector) at each ball
 arrow = vtk.vtkArrowSource()
 arrow.SetTipRadius(0.2)
 arrow.SetShaftRadius(0.075)
@@ -48,11 +44,9 @@ arrowGlyph = vtk.vtkGlyph3D()
 arrowGlyph.SetInputConnection(plot.GetOutputPort())
 arrowGlyph.SetSourceConnection(arrow.GetOutputPort())
 arrowGlyph.SetScaleFactor(0.4)
-# We do not want the Arrow's size to depend on the Scalar
 arrowGlyph.SetScaleModeToDataScalingOff()
 arrowMapper = vtk.vtkPolyDataMapper()
 arrowMapper.SetInputConnection(arrowGlyph.GetOutputPort())
-# Set colors depending on the color transfer functions
 arrowMapper.SetLookupTable(colorTransferFunction)
 arrowActor = vtk.vtkActor()
 arrowActor.SetMapper(arrowMapper)
@@ -151,7 +145,7 @@ axesActor = vtk.vtkAxesActor()
 ren = vtk.vtkRenderer()
 
 ren.AddActor(ballActor)
-ren.AddActor(arrowActor)
+#ren.AddActor(arrowActor)
 ren.AddActor(objectActor)
 ren.AddActor(object2Actor)
 ren.AddActor(planeActor)
