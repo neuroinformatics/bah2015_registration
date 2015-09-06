@@ -5,6 +5,7 @@ obj2_filename = '../obj/slice.obj'
 png_filename = 'CD21594.1-Prlr.png'
 plot_filename = '../analysis_obj/test.vtk'
 #plot_filename = 'mousebrain_small1000.vtk'
+poly_filename = '/media/nebula/data/bah/vtk/seg00001.vtk'
 plane_scale = 25
 plane_ratio = 385. / 614.
 
@@ -51,6 +52,19 @@ arrowMapper.SetLookupTable(colorTransferFunction)
 arrowActor = vtk.vtkActor()
 arrowActor.SetMapper(arrowMapper)
 
+
+
+###############################################################################
+# read polydata file
+#
+poly = vtk.vtkPolyDataReader()
+poly.SetFileName(poly_filename)
+polyMapper = vtk.vtkPolyDataMapper()
+polyMapper.SetInputConnection(poly.GetOutputPort())
+polyActor = vtk.vtkActor()
+polyActor.SetMapper(polyMapper)
+#polyActor.GetProperty().SetRepresentationToWireframe();
+#polyActor.GetProperty().SetColor(1.0, 0.2, 0.2)
 
 
 ###############################################################################
@@ -150,6 +164,7 @@ ren.AddActor(objectActor)
 ren.AddActor(object2Actor)
 ren.AddActor(planeActor)
 ren.AddActor(axesActor)
+#ren.AddActor(polyActor)
 ren.SetBackground(0.0, 0.0, 0.0)
 
 renWin = vtk.vtkRenderWindow()
