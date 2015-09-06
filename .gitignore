@@ -1,5 +1,11 @@
 *#
 *~
+CMakeFiles/
+CMakeCache.txt
+ITKIOFactoryRegistration
+slice_registration/Makefile
+*.cmake
+myaffine
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
