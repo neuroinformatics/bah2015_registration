@@ -10,7 +10,8 @@ if (ITKVtkGlue_LOADED)
 endif()
  
 add_executable(myaffine MACOSX_BUNDLE ImageRegistration9.cxx)
- 
+add_executable(myaffine2 MACOSX_BUNDLE simple_affine2.cxx)
+
 if( "${ITK_VERSION_MAJOR}" LESS 4 )
   target_link_libraries(myaffine ITKReview ${ITK_LIBRARIES})
 else( "${ITK_VERSION_MAJOR}" LESS 4 )

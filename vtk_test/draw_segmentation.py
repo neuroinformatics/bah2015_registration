@@ -16,9 +16,12 @@ for i in range(1, 39):
     segs_mapper[-1].SetInputConnection(segs[-1].GetOutputPort())
     segs_actor.append(vtk.vtkActor())
     segs_actor[-1].SetMapper(segs_mapper[-1])
-    segs_actor[-1].GetProperty().SetOpacity(0.6)
-    color = cm.jet(i/39.)
-    segs_actor[-1].GetProperty().SetColor(color[0], color[1], color[2])
+    segs_actor[-1].GetProperty().SetOpacity(0.8)
+    #color = cm.jet(i/39.)
+    #segs_actor[-1].GetProperty().SetColor(color[0], color[1], color[2])
+
+segs_actor[6].GetProperty().SetOpacity(0.1)
+segs_actor[-1].GetProperty().SetColor(1.0, 0.0, 0.0)
 
 #polyActor.GetProperty().SetRepresentationToWireframe();
 #polyActor.GetProperty().SetColor(1.0, 0.2, 0.2)
