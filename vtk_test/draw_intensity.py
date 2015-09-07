@@ -2,7 +2,59 @@ import vtk
 import matplotlib.cm as cm
 import sys
 
-def draw_scene(int_filename, color_mode=0):
+LABEL_NAMES = [\
+'olfactory bulb',
+'cerebral cortex',
+'lateral septal nuclei',
+'striatum',
+'globus pallidus',
+'thalamus',
+'hypothalamus',
+'hippocampal formation',
+'superior colliculus',
+'inferior colliculus',
+'cerebellum',
+'fimbria',
+'internal capsule',
+'ventricle',
+'ventricle',
+'corpus callosum',
+'subcommissural organ',
+'anterior commissure',
+'paraflocculus',
+'deep mesencephalic nucleus',
+'fornix',
+'aqueaduct',
+'pineal gland',
+'substantia nigra',
+'brainstem (remainder)',
+'pontine gray',
+'fasciculus retroflexus',
+'amygdala',
+'interpeduncular nucleus',
+'periacueductal gray',
+'nucleus accumbens',
+'optic chiasm',
+'supraoptic decussation',
+'optic tract',
+'lateral lemniscus',
+'epithalamus',
+'mammillary nucleus',
+'cochlear nuclei and nerve'
+]
+
+def read_intensity_data(filename):
+    int_data = {}
+    fp = open(filename, 'r')
+    lines = fp.readlines()
+    for line in lines:
+        splited = line.strip().split(',')
+        int_data[int(splited[0])] = float(splited[1])
+
+    return int_data
+
+
+def draw_scene(int_filename, color_mode=0, screen_name=None):
     ###############################################################################
     # read polydata file
     #
@@ -12,27 +64,38 @@ def draw_scene(int_filename, color_mode=0):
     segs = []
     segs_mapper = []
     segs_actor = []
-    seg_fileformat = '/media/nebula/data/bah/vtk/seg%05d.vtk'
+    transforms = []
+    transforms_filter = []
+
+    seg_fileformat = '/media/nebula/data/bah/seg2/seg%05d.vtk'
     #seg_fileformat = '/media/nebula/data/bah/vtk/seg%05d.vtk'
     #int_filename = '../matching_area/result.txt'
 
-    int_data = {}
+    int_data = read_intensity_data(int_filename)
     int_data_sorted = {}
     
-    fp = open(int_filename, 'r')
-    lines = fp.readlines()
-    for line in lines:
-        splited = line.strip().split(',')
-        int_data[int(splited[0])] = float(splited[1])
         
-        #print int_data
+    transform = vtk.vtkTransform()
+    transform.RotateWXYZ(90, 0, 1, 0)
+    transformFilter = vtk.vtkTransformPolyDataFilter()
+    transformFilter.SetTransform(transform)
+    transformFilter
         
 
     for i in range(1, 39):
         segs.append(vtk.vtkPolyDataReader())
         segs[-1].SetFileName(seg_fileformat % i)
+
+        transforms.append(vtk.vtkTransform())
+        #transforms[-1].RotateWXYZ(90., 0, 1, 0)
+        transforms_filter.append(vtk.vtkTransformPolyDataFilter())
+        transforms_filter[-1].SetTransform(transforms[-1])
+        transforms_filter[-1].SetInputConnection(segs[-1].GetOutputPort())
+        transforms_filter[-1].Update()
+
         segs_mapper.append(vtk.vtkPolyDataMapper())
-        segs_mapper[-1].SetInputConnection(segs[-1].GetOutputPort())
+        #segs_mapper[-1].SetInputConnection(segs[-1].GetOutputPort())
+        segs_mapper[-1].SetInputConnection(transforms_filter[-1].GetOutputPort())
         segs_actor.append(vtk.vtkActor())
         segs_actor[-1].SetMapper(segs_mapper[-1])
         segs_actor[-1].GetProperty().SetOpacity(0.1)
@@ -42,7 +105,7 @@ def draw_scene(int_filename, color_mode=0):
 
     i = 0
     for k, v in sorted(int_data.items(), key=lambda x:x[1], reverse=True):
-        if i < 6:
+        if i < 5:
             segs_actor[k-1].GetProperty().SetOpacity(0.8)
             if color_mode == 0:
                 color = ((v-40) / 20.)
@@ -51,7 +114,7 @@ def draw_scene(int_filename, color_mode=0):
                 color = cm.jet(((v-40) / 60.))
                 segs_actor[k-1].GetProperty().SetColor(color[0], color[1], color[2])
 
-            print k, v, color
+            print ' Lank %d : %s (%d) = %d' % (i, LABEL_NAMES[k], k, v)
             i += 1
             #int_data_sorted[k] = v
         #print 'Lank %5d : %d (%d)' % (i, k, v)
@@ -79,26 +142,45 @@ def draw_scene(int_filename, color_mode=0):
     if offscreen:
         renWin.SetOffScreenRendering(True)
     renWin.AddRenderer(ren)
-    renWin.SetWindowName('Mouse Brain Viewer 2')
-    renWin.SetSize(1200, 1200)
+    renWin.SetWindowName('Mouse Brain Viewer 2 + (%s)' % screen_name)
+    renWin.SetSize(1600, 1600)
 
     iren = vtk.vtkRenderWindowInteractor()
     iren.SetRenderWindow(renWin)
     iren.Initialize()
 
-    print 'start'
+    renWin.Render()
+    get_screenshot(renWin, screen_name + '_1.png')
 
-    iren.Start()
+    
+    for trans in transforms:
+        trans.RotateWXYZ(90., 0, 1, 0)
+    for trans_filter in transforms_filter:
+        trans_filter.Update()
+    renWin.Render()
+    get_screenshot(renWin, screen_name + '_2.png')
 
+    for trans in transforms:
+        trans.RotateWXYZ(90., 0, 1, 0)
+    for trans_filter in transforms_filter:
+        trans_filter.Update()
+    renWin.Render()
+    get_screenshot(renWin, screen_name + '_3.png')
+
+
+    #iren.Start()
+
+def get_screenshot(renWin, filename):
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(renWin)
     w2if.Update()
     writer = vtk.vtkPNGWriter()
-    writer.SetFileName('screen.png')
+    writer.SetFileName(filename)
     writer.SetInput(w2if.GetOutput())
     writer.Write()
+    renWin.Render()
 
-    print 'finish'
+
 
 if __name__ == '__main__':
     argvs = sys.argv
@@ -113,6 +195,8 @@ if __name__ == '__main__':
     if(argc >= 3):
         color_mode = int(argvs[2])
     else:
-        color_mode = 0
+        color_mode = 1
 
-    draw_scene(filename, color_mode)
+
+    print '************ %s ************' % 'GENE NAME'
+    draw_scene(filename, color_mode, 'screen')
