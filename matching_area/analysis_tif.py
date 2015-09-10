@@ -73,17 +73,19 @@ def matching_ish(labeled_filename, ish_filename, output_filename, slice):
         value = int(value)
         labeled_volume[value] += 1
 
-    threshold = 128
+    threshold = 60
     for (ish_val, labeled_val) in zip(ish_data, labeled_data):
         if(int(labeled_val)!=0 and int(ish_val[0])!=0):
-            if (ish_val[0] + ish_val[1] + ish_val[2])/3 > threshold:
-                value = 256 - (ish_val[0] + ish_val[1] + ish_val[2])/3
+            value = 256 - (ish_val[0] + ish_val[1] + ish_val[2]) / 3
+
+            if  value > threshold:
                 result_value[int(labeled_val)] += value
+
                 if value > result_value_max[int(labeled_val)]:
                     result_value_max[int(labeled_val)] = value
 
     print labeled_volume
-    volume_threshold = 200
+    volume_threshold = 100
     for i in range(40):
         if labeled_volume[i] > volume_threshold:
             result_value_per_vol[i] = float(result_value[i]) / float(labeled_volume[i])
@@ -103,7 +105,7 @@ def matching_ish(labeled_filename, ish_filename, output_filename, slice):
 
     i = 1
     for k, v in sorted(result_value_per_vol.items(), key=lambda x:x[1], reverse=True):
-        print 'Lank %5d : %d (%d)' % (i, k, v)
+        print 'Rank %5d : %d (%d)' % (i, k, v)
         i += 1
 
 
