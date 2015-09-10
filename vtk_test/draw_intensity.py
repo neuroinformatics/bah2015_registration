@@ -72,9 +72,9 @@ def draw_scene(int_filename, color_mode=0, screen_name=None):
     #int_filename = '../matching_area/result.txt'
 
     int_data = read_intensity_data(int_filename)
+    int_sum = sum(int_data)
     int_data_sorted = {}
     
-        
     transform = vtk.vtkTransform()
     transform.RotateWXYZ(90, 0, 1, 0)
     transformFilter = vtk.vtkTransformPolyDataFilter()
@@ -105,16 +105,17 @@ def draw_scene(int_filename, color_mode=0, screen_name=None):
 
     i = 0
     for k, v in sorted(int_data.items(), key=lambda x:x[1], reverse=True):
-        if i < 5:
+        if i < 6:
             segs_actor[k-1].GetProperty().SetOpacity(0.8)
             if color_mode == 0:
                 color = ((v-40) / 20.)
                 segs_actor[k-1].GetProperty().SetColor(color, 0, 0)
             elif color_mode == 1:
-                color = cm.jet(((v-40) / 60.))
+                color = cm.jet( (v-float(int_sum/40)) / float(int_sum) * 10.)
                 segs_actor[k-1].GetProperty().SetColor(color[0], color[1], color[2])
 
-            print ' Lank %d : %s (%d) = %d' % (i, LABEL_NAMES[k], k, v)
+            print ' Rank %d : %s (%d) = %d' % (i+1, LABEL_NAMES[k-1], k, v)
+            #print color
             i += 1
             #int_data_sorted[k] = v
         #print 'Lank %5d : %d (%d)' % (i, k, v)
@@ -197,6 +198,10 @@ if __name__ == '__main__':
     else:
         color_mode = 1
 
+    if(argc >= 4):
+        gene_name = argvs[3]
+    else:
+        gene_name = 'GENE_NAME'
 
-    print '************ %s ************' % 'GENE NAME'
-    draw_scene(filename, color_mode, 'screen')
+    print '************ %s ************' % gene_name
+    draw_scene(filename, color_mode, gene_name)

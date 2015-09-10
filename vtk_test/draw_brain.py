@@ -3,7 +3,7 @@ import vtk
 obj_filename = '../obj/mousebrain_small.obj'
 obj2_filename = '../obj/slice.obj'
 png_filename = 'CD21594.1-Prlr.png'
-plot_filename = '../analysis_obj/test.vtk'
+plot_filename = '../analysis_obj/tmp.vtk'
 #plot_filename = 'mousebrain_small1000.vtk'
 poly_filename = '/media/nebula/data/bah/vtk/seg00001.vtk'
 plane_scale = 25
@@ -162,7 +162,7 @@ ren.AddActor(ballActor)
 #ren.AddActor(arrowActor)
 ren.AddActor(objectActor)
 ren.AddActor(object2Actor)
-ren.AddActor(planeActor)
+#ren.AddActor(planeActor)
 ren.AddActor(axesActor)
 #ren.AddActor(polyActor)
 ren.SetBackground(0.0, 0.0, 0.0)
