@@ -67,7 +67,7 @@ def draw_scene(int_filename, color_mode=0, screen_name=None):
     transforms = []
     transforms_filter = []
 
-    seg_fileformat = '/media/nebula/data/bah/seg2/seg%05d.vtk'
+    seg_fileformat = '/mnt/data1/bah2015/seg2/seg%05d.vtk'
     #seg_fileformat = '/media/nebula/data/bah/vtk/seg%05d.vtk'
     #int_filename = '../matching_area/result.txt'
 
