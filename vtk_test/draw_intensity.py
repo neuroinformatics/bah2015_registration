@@ -168,7 +168,6 @@ def draw_scene(int_filename, color_mode=0, screen_name=None):
     renWin.Render()
     get_screenshot(renWin, screen_name + '_3.png')
 
-
     #iren.Start()
 
 def get_screenshot(renWin, filename):
