@@ -126,6 +126,11 @@ def draw_scene(int_filename, color_mode=0, screen_name=None):
     if draw_axes:
         axesActor = vtk.vtkAxesActor()
 
+    lut = vtk.vtkLookupTable()
+    lut.Build()
+    scalar_bar = vtk.vtkScalarBarActor()
+    scalar_bar.SetLookupTable(lut)
+
 
     ###############################################################################
     # prepare rendering
@@ -138,6 +143,9 @@ def draw_scene(int_filename, color_mode=0, screen_name=None):
 
     for seg in segs_actor:
         ren.AddActor(seg)
+
+    ren.AddActor(scalar_bar)
+
 
     renWin = vtk.vtkRenderWindow()
     if offscreen:
